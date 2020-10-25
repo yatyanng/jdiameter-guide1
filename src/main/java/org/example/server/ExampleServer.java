@@ -171,10 +171,10 @@ public class ExampleServer implements NetworkReqListener {
 
   private void dumpMessage(Message message, boolean sending) {
     if (log.isInfoEnabled()) {
-      log.info(
-          (sending ? "<--- Sending " : "---> Received ") + (message.isRequest() ? "Request: " : "Answer: ")
-              + message.getCommandCode() + "\nE2E:" + message.getEndToEndIdentifier() + "\nHBH:"
-              + message.getHopByHopIdentifier() + "\nAppID:" + message.getApplicationId());
+      log.info((sending ? "<--- Sending " : "---> Received ")
+          + (message.isRequest() ? "Request: " : "Answer: ") + message.getCommandCode() + "\nE2E:"
+          + message.getEndToEndIdentifier() + "\nHBH:" + message.getHopByHopIdentifier()
+          + "\nAppID:" + message.getApplicationId());
       log.info("AVPS[" + message.getAvps().size() + "]: \n");
       try {
         printAvps(message.getAvps());
@@ -269,39 +269,28 @@ public class ExampleServer implements NetworkReqListener {
 
       Answer answer = createAnswer(request, 5004, EXCHANGE_TYPE_TERMINATING);
       dumpMessage(answer, true);
-      return answer; // set
-                     // exchange
-                     // type
-                     // to
-                     // terminating
+      return answer;
     }
     if (exchangeDataAvp == null) {
       log.error("Request does not have Exchange-Data");
       Answer answer = createAnswer(request, 5004, EXCHANGE_TYPE_TERMINATING);
       dumpMessage(answer, true);
-      return answer; // set
-                     // exchange
-                     // type
-                     // to
-                     // terminating
+      return answer;
     }
     // cast back to int(Enumerated is Unsigned32, and API represents it as
     // long so its easier
     // to manipulate
     try {
       switch ((int) exchangeTypeAvp.getUnsigned32()) {
-        case EXCHANGE_TYPE_INITIAL:
+        case EXCHANGE_TYPE_INITIAL: {
           // JIC check;
           String data = exchangeDataAvp.getUTF8String();
+          log.info("[EXCHANGE_TYPE_INITIAL] Received Exchange-Data: " + data);
           this.session = this.factory.getNewSession(request.getSessionId());
           if (data.equals(TO_RECEIVE[toReceiveIndex])) {
             // create session;
 
-            Answer answer = createAnswer(request, 2001, EXCHANGE_TYPE_INITIAL); // set
-            // exchange
-            // type
-            // to
-            // terminating
+            Answer answer = createAnswer(request, 2001, EXCHANGE_TYPE_INITIAL);
             toReceiveIndex++;
             dumpMessage(answer, true);
             return answer;
@@ -310,35 +299,31 @@ public class ExampleServer implements NetworkReqListener {
             Answer answer = request.createAnswer(6000);
             dumpMessage(answer, true);
           }
+        }
           break;
-        case EXCHANGE_TYPE_INTERMEDIATE:
+        case EXCHANGE_TYPE_INTERMEDIATE: {
           // JIC check;
-          data = exchangeDataAvp.getUTF8String();
+          String data = exchangeDataAvp.getUTF8String();
+          log.info("[EXCHANGE_TYPE_INTERMEDIATE] Received Exchange-Data: " + data);
           if (data.equals(TO_RECEIVE[toReceiveIndex])) {
 
-            Answer answer = createAnswer(request, 2001, EXCHANGE_TYPE_INTERMEDIATE); // set
-            // exchange
-            // type
-            // to
-            // terminating
+            Answer answer = createAnswer(request, 2001, EXCHANGE_TYPE_INTERMEDIATE);
             toReceiveIndex++;
             dumpMessage(answer, true);
             return answer;
           } else {
             log.error("Received wrong Exchange-Data: " + data);
           }
+        }
           break;
-        case EXCHANGE_TYPE_TERMINATING:
-          data = exchangeDataAvp.getUTF8String();
+        case EXCHANGE_TYPE_TERMINATING: {
+          String data = exchangeDataAvp.getUTF8String();
+          log.info("[EXCHANGE_TYPE_TERMINATING] Received Exchange-Data: " + data);
           if (data.equals(TO_RECEIVE[toReceiveIndex])) {
             // good, we reached end of FSM.
             finished = true;
             // release session and its resources.
-            Answer answer = createAnswer(request, 2001, EXCHANGE_TYPE_TERMINATING); // set
-            // exchange
-            // type
-            // to
-            // terminating
+            Answer answer = createAnswer(request, 2001, EXCHANGE_TYPE_TERMINATING);
             toReceiveIndex++;
             this.session.release();
             finished = true;
@@ -349,6 +334,7 @@ public class ExampleServer implements NetworkReqListener {
           } else {
             log.error("Received wrong Exchange-Data: " + data);
           }
+        }
           break;
         default:
           log.error("Bad value of Exchange-Type avp: " + exchangeTypeAvp.getUnsigned32());

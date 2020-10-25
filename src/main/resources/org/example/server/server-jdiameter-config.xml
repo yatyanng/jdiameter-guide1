@@ -2,10 +2,10 @@
 <Configuration xmlns="http://www.jdiameter.org/jdiameter-server">
 
   <LocalPeer>
-    <URI value="aaa://127.0.0.1:3868" />
+    <URI value="aaa://localhost:3868" />
 
     <IPAddresses>
-      <IPAddress value="127.0.0.1" />
+      <IPAddress value="localhost" />
     </IPAddresses>
     <Realm value="exchange.example.org" />
     <VendorID value="0" />
@@ -15,7 +15,7 @@
       <Entry index="1" lowThreshold="0.5" highThreshold="0.6">
         <ApplicationID>
           <VendorId value="0" />
-          <AuthApplId value="333333" />
+          <AuthApplId value="33333" />
           <AcctApplId value="0" />
         </ApplicationID>
       </Entry>
@@ -28,7 +28,7 @@
     <AcceptUndefinedPeer value="true" />
     <DuplicateProtection value="true" />
     <DuplicateTimer value="240000" />
-    <UseUriAsFqdn value="false" />
+    <UseUriAsFqdn value="true" />
     <QueueSize value="10000" />
     <MessageTimeOut value="60000" />
     <StopTimeOut value="10000" />
@@ -51,14 +51,13 @@
 
   <Network>
     <Peers>
-      <!-- our client, lets define it -->
-      <Peer name="aaa://127.0.0.1:1812" attempt_connect="false" rating="1" />
+      <Peer name="aaa://localhost:1812" attempt_connect="false" rating="1" />
     </Peers>
     <Realms>
-      <Realm name="exchange.example.org" peers="127.0.0.1" local_action="LOCAL" dynamic="false" exp_time="1">
+      <Realm name="exchange.example.org" peers="localhost" local_action="LOCAL" dynamic="false" exp_time="1">
         <ApplicationID>
           <VendorId value="0" />
-          <AuthApplId value="333333" />
+          <AuthApplId value="33333" />
           <AcctApplId value="0" />
         </ApplicationID>
       </Realm>

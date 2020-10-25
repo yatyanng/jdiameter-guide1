@@ -78,10 +78,7 @@ public class ExampleClient implements EventListener<Request, Answer> {
   // configuration files
   private static final String configFile = "org/example/client/client-jdiameter-config.xml";
   private static final String dictionaryFile = "org/example/client/dictionary.xml";
-  // our destination
-  private static final String serverHost = "127.0.0.1";
-  private static final String serverPort = "3868";
-  private static final String serverURI = "aaa://" + serverHost + ":" + serverPort;
+
   // our realm
   private static final String realmName = "exchange.example.org";
   // definition of codes, IDs
@@ -110,11 +107,13 @@ public class ExampleClient implements EventListener<Request, Answer> {
   private Session session; // session used as handle for communication
   private int toSendIndex = 0; // index in TO_SEND table
   private boolean finished = false; // boolean telling if we finished our interaction
-
-  private void initStack() {
+  private String serverHost;
+  
+  private void initStack(String serverHost) {
     if (log.isInfoEnabled()) {
       log.info("Initializing Stack...");
     }
+    this.serverHost = serverHost;
     InputStream is = null;
     try {
       // Parse dictionary, it is used for user friendly info.
@@ -126,7 +125,9 @@ public class ExampleClient implements EventListener<Request, Answer> {
       // Parse stack configuration
       is = this.getClass().getClassLoader().getResourceAsStream(configFile);
       Configuration config = new XMLConfiguration(is);
+      
       factory = stack.init(config);
+      
       if (log.isInfoEnabled()) {
         log.info("Stack Configuration successfully loaded.");
       }
@@ -237,7 +238,7 @@ public class ExampleClient implements EventListener<Request, Answer> {
 
   private void sendNextRequest(int enumType)
       throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
-    Request r = this.session.createRequest(commandCode, this.authAppId, realmName, serverURI);
+    Request r = this.session.createRequest(commandCode, this.authAppId, realmName, serverHost);
     // here we have all except our custom avps
 
     AvpSet requestAvps = r.getAvps();
@@ -414,7 +415,7 @@ public class ExampleClient implements EventListener<Request, Answer> {
 
   public static void main(String[] args) {
     ExampleClient ec = new ExampleClient();
-    ec.initStack();
+    ec.initStack(args.length > 0 ? args[0]:"localhost");
     ec.start();
 
     while (!ec.finished()) {
