@@ -1,19 +1,14 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright XXXX, Red Hat Middleware LLC, and individual contributors as indicated
- * by the @authors tag. All rights reserved.
- * See the copyright.txt in the distribution for a full listing
- * of individual contributors.
- * This copyrighted material is made available to anyone wishing to use,
- * modify, copy, or redistribute it subject to the terms and conditions
- * of the GNU General Public License, v. 2.0.
- * This program is distributed in the hope that it will be useful, but WITHOUT A
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License,
- * v. 2.0 along with this distribution; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * JBoss, Home of Professional Open Source Copyright XXXX, Red Hat Middleware LLC, and individual
+ * contributors as indicated by the @authors tag. All rights reserved. See the copyright.txt in the
+ * distribution for a full listing of individual contributors. This copyrighted material is made
+ * available to anyone wishing to use, modify, copy, or redistribute it subject to the terms and
+ * conditions of the GNU General Public License, v. 2.0. This program is distributed in the hope
+ * that it will be useful, but WITHOUT A WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details. You should have received a copy of the GNU General Public License, v. 2.0 along with
+ * this distribution; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
+ * Floor, Boston, MA 02110-1301, USA.
  */
 package org.example.client;
 
@@ -53,23 +48,22 @@ import org.mobicents.diameter.dictionary.AvpRepresentation;
 public class ExampleClient implements EventListener<Request, Answer> {
 
   private static final Logger log = Logger.getLogger(ExampleClient.class);
-  static{
-      //configure logging.
-      configLog4j();
+  static {
+    // configure logging.
+    configLog4j();
   }
 
   private static void configLog4j() {
-    InputStream inStreamLog4j = ExampleClient.class.getClassLoader().getResourceAsStream("log4j.properties");
+    InputStream inStreamLog4j =
+        ExampleClient.class.getClassLoader().getResourceAsStream("log4j.properties");
     Properties propertiesLog4j = new Properties();
     try {
       propertiesLog4j.load(inStreamLog4j);
       PropertyConfigurator.configure(propertiesLog4j);
     } catch (Exception e) {
       e.printStackTrace();
-    }finally
-    {
-      if(inStreamLog4j!=null)
-      {
+    } finally {
+      if (inStreamLog4j != null) {
         try {
           inStreamLog4j.close();
         } catch (IOException e) {
@@ -81,14 +75,14 @@ public class ExampleClient implements EventListener<Request, Answer> {
     log.debug("log4j configured");
   }
 
-  //configuration files
+  // configuration files
   private static final String configFile = "org/example/client/client-jdiameter-config.xml";
   private static final String dictionaryFile = "org/example/client/dictionary.xml";
-  //our destination
+  // our destination
   private static final String serverHost = "127.0.0.1";
   private static final String serverPort = "3868";
   private static final String serverURI = "aaa://" + serverHost + ":" + serverPort;
-  //our realm
+  // our realm
   private static final String realmName = "exchange.example.org";
   // definition of codes, IDs
   private static final int commandCode = 686;
@@ -101,20 +95,21 @@ public class ExampleClient implements EventListener<Request, Answer> {
   private static final int EXCHANGE_TYPE_INITIAL = 0;
   private static final int EXCHANGE_TYPE_INTERMEDIATE = 1;
   private static final int EXCHANGE_TYPE_TERMINATING = 2;
-  //list of data we want to exchange.
-  private static final String[] TO_SEND = new String[] { "I want to get 3 answers", "This is second message", "Bye bye" };
-  //Dictionary, for informational purposes.
+  // list of data we want to exchange.
+  private static final String[] TO_SEND =
+      new String[] {"I want to get 3 answers", "This is second message", "Bye bye"};
+  // Dictionary, for informational purposes.
   private AvpDictionary dictionary = AvpDictionary.INSTANCE;
-  //stack and session factory
+  // stack and session factory
   private Stack stack;
   private SessionFactory factory;
 
   // ////////////////////////////////////////
   // Objects which will be used in action //
   // ////////////////////////////////////////
-  private Session session;  // session used as handle for communication
-  private int toSendIndex = 0;  //index in TO_SEND table
-  private boolean finished = false;  //boolean telling if we finished our interaction
+  private Session session; // session used as handle for communication
+  private int toSendIndex = 0; // index in TO_SEND table
+  private boolean finished = false; // boolean telling if we finished our interaction
 
   private void initStack() {
     if (log.isInfoEnabled()) {
@@ -122,37 +117,39 @@ public class ExampleClient implements EventListener<Request, Answer> {
     }
     InputStream is = null;
     try {
-      //Parse dictionary, it is used for user friendly info.
-      dictionary.parseDictionary(this.getClass().getClassLoader().getResourceAsStream(dictionaryFile));
+      // Parse dictionary, it is used for user friendly info.
+      dictionary
+          .parseDictionary(this.getClass().getClassLoader().getResourceAsStream(dictionaryFile));
       log.info("AVP Dictionary successfully parsed.");
 
       this.stack = new StackImpl();
-      //Parse stack configuration
+      // Parse stack configuration
       is = this.getClass().getClassLoader().getResourceAsStream(configFile);
       Configuration config = new XMLConfiguration(is);
       factory = stack.init(config);
       if (log.isInfoEnabled()) {
         log.info("Stack Configuration successfully loaded.");
       }
-      //Print info about applicatio
-      Set<org.jdiameter.api.ApplicationId> appIds = stack.getMetaData().getLocalPeer().getCommonApplications();
+      // Print info about applicatio
+      Set<org.jdiameter.api.ApplicationId> appIds =
+          stack.getMetaData().getLocalPeer().getCommonApplications();
 
       log.info("Diameter Stack  :: Supporting " + appIds.size() + " applications.");
       for (org.jdiameter.api.ApplicationId x : appIds) {
         log.info("Diameter Stack  :: Common :: " + x);
       }
       is.close();
-      //Register network req listener, even though we wont receive requests
-      //this has to be done to inform stack that we support application
+      // Register network req listener, even though we wont receive requests
+      // this has to be done to inform stack that we support application
       Network network = stack.unwrap(Network.class);
       network.addNetworkReqListener(new NetworkReqListener() {
 
         @Override
         public Answer processRequest(Request request) {
-          //this wontbe called.
+          // this wontbe called.
           return null;
         }
-      }, this.authAppId); //passing our example app id.
+      }, this.authAppId); // passing our example app id.
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -172,7 +169,7 @@ public class ExampleClient implements EventListener<Request, Answer> {
     }
 
     MetaData metaData = stack.getMetaData();
-    //ignore for now.
+    // ignore for now.
     if (metaData.getStackType() != StackType.TYPE_SERVER || metaData.getMinorVersion() <= 0) {
       stack.destroy();
       if (log.isEnabledFor(org.apache.log4j.Level.ERROR)) {
@@ -211,15 +208,16 @@ public class ExampleClient implements EventListener<Request, Answer> {
    */
   private void start() {
     try {
-      //wait for connection to peer
+      // wait for connection to peer
       try {
-        Thread.currentThread().sleep(5000);
+        Thread.sleep(5000);
       } catch (InterruptedException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
-      //do send
-      this.session = this.factory.getNewSession("BadCustomSessionId;YesWeCanPassId;" + System.currentTimeMillis());
+      // do send
+      this.session = this.factory
+          .getNewSession("BadCustomSessionId;YesWeCanPassId;" + System.currentTimeMillis());
       sendNextRequest(EXCHANGE_TYPE_INITIAL);
     } catch (InternalException e) {
       // TODO Auto-generated catch block
@@ -237,41 +235,33 @@ public class ExampleClient implements EventListener<Request, Answer> {
 
   }
 
-  private void sendNextRequest(int enumType) throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
+  private void sendNextRequest(int enumType)
+      throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
     Request r = this.session.createRequest(commandCode, this.authAppId, realmName, serverURI);
     // here we have all except our custom avps
 
     AvpSet requestAvps = r.getAvps();
-    // code , value , vendor, mandatory,protected,isUnsigned32
-    // (Enumerated)
-    Avp exchangeType = requestAvps.addAvp(exchangeTypeCode, (long) enumType, vendorID, true, false, true); // value
-                                                        // is
-                                                        // set
-                                                        // on
-                                                        // creation
-    // code , value , vendor, mandatory,protected, isOctetString
-    Avp exchengeData = requestAvps.addAvp(exchangeDataCode, TO_SEND[toSendIndex++], vendorID, true, false, false); // value
-                                                            // is
-                                                            // set
-                                                            // on
-                                                            // creation
-    // send
+    requestAvps.addAvp(exchangeTypeCode, (long) enumType, vendorID, true, false, true);
+    requestAvps.addAvp(exchangeDataCode, TO_SEND[toSendIndex++], vendorID, true, false, false); // value
+
     this.session.send(r, this);
-    dumpMessage(r,true); //dump info on console
+    dumpMessage(r, true); // dump info on console
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.jdiameter.api.EventListener#receivedSuccessMessage(org.jdiameter
-   * .api.Message, org.jdiameter.api.Message)
+   * @see org.jdiameter.api.EventListener#receivedSuccessMessage(org.jdiameter .api.Message,
+   * org.jdiameter.api.Message)
    */
   @Override
   public void receivedSuccessMessage(Request request, Answer answer) {
-    dumpMessage(answer,false);
+    dumpMessage(answer, false);
     if (answer.getCommandCode() != commandCode) {
       log.error("Received bad answer: " + answer.getCommandCode());
       return;
+    } else {
+      log.info("RECEIVED ANSWER: " + answer.getCommandCode());
     }
     AvpSet answerAvpSet = answer.getAvps();
 
@@ -281,7 +271,7 @@ public class ExampleClient implements EventListener<Request, Answer> {
 
 
     try {
-      //for bad formatted request.
+      // for bad formatted request.
       if (resultAvp.getUnsigned32() == 5005 || resultAvp.getUnsigned32() == 5004) {
         // missing || bad value of avp
         this.session.release();
@@ -289,42 +279,49 @@ public class ExampleClient implements EventListener<Request, Answer> {
         log.error("Something wrong happened at server side!");
         finished = true;
       }
+
+      log.info("ANSWER's exchangeTypeAvp: " + exchangeTypeAvp.getUnsigned32());
+
       switch ((int) exchangeTypeAvp.getUnsigned32()) {
-      case EXCHANGE_TYPE_INITIAL:
-        // JIC check;
-        String data = exchangeDataAvp.getUTF8String();
-        if (data.equals(TO_SEND[toSendIndex - 1])) {
-          // ok :) send next;
-          sendNextRequest(EXCHANGE_TYPE_INTERMEDIATE);
-        } else {
-          log.error("Received wrong Exchange-Data: " + data);
+        case EXCHANGE_TYPE_INITIAL: {
+          String data = exchangeDataAvp.getUTF8String();
+          log.info("EXCHANGE_TYPE_INITIAL data: " + data);
+          if (data.equals(TO_SEND[toSendIndex - 1])) {
+            // ok :) send next;
+            sendNextRequest(EXCHANGE_TYPE_INTERMEDIATE);
+          } else {
+            log.error("Received wrong Exchange-Data: " + data);
+          }
         }
-        break;
-      case EXCHANGE_TYPE_INTERMEDIATE:
-        // JIC check;
-        data = exchangeDataAvp.getUTF8String();
-        if (data.equals(TO_SEND[toSendIndex - 1])) {
-          // ok :) send next;
-          sendNextRequest(EXCHANGE_TYPE_TERMINATING);
-        } else {
-          log.error("Received wrong Exchange-Data: " + data);
+          break;
+        case EXCHANGE_TYPE_INTERMEDIATE: {
+          String data = exchangeDataAvp.getUTF8String();
+          log.info("EXCHANGE_TYPE_INTERMEDIATE data: " + data);
+          if (data.equals(TO_SEND[toSendIndex - 1])) {
+            // ok :) send next;
+            sendNextRequest(EXCHANGE_TYPE_TERMINATING);
+          } else {
+            log.error("Received wrong Exchange-Data: " + data);
+          }
         }
-        break;
-      case EXCHANGE_TYPE_TERMINATING:
-        data = exchangeDataAvp.getUTF8String();
-        if (data.equals(TO_SEND[toSendIndex - 1])) {
-          // good, we reached end of FSM.
-          finished = true;
-          // release session and its resources.
-          this.session.release();
-          this.session = null;
-        } else {
-          log.error("Received wrong Exchange-Data: " + data);
+          break;
+        case EXCHANGE_TYPE_TERMINATING: {
+          String data = exchangeDataAvp.getUTF8String();
+          log.info("EXCHANGE_TYPE_TERMINATING data: " + data);
+          if (data.equals(TO_SEND[toSendIndex - 1])) {
+            // good, we reached end of FSM.
+            finished = true;
+            // release session and its resources.
+            this.session.release();
+            this.session = null;
+          } else {
+            log.error("Received wrong Exchange-Data: " + data);
+          }
         }
-        break;
-      default:
-        log.error("Bad value of Exchange-Type avp: " + exchangeTypeAvp.getUnsigned32());
-        break;
+          break;
+        default:
+          log.error("Bad value of Exchange-Type avp: " + exchangeTypeAvp.getUnsigned32());
+          break;
       }
     } catch (AvpDataException e) {
       // thrown when interpretation of byte[] fails
@@ -348,8 +345,7 @@ public class ExampleClient implements EventListener<Request, Answer> {
   /*
    * (non-Javadoc)
    *
-   * @see org.jdiameter.api.EventListener#timeoutExpired(org.jdiameter.api.
-   * Message)
+   * @see org.jdiameter.api.EventListener#timeoutExpired(org.jdiameter.api. Message)
    */
   @Override
   public void timeoutExpired(Request request) {
@@ -359,9 +355,11 @@ public class ExampleClient implements EventListener<Request, Answer> {
 
   private void dumpMessage(Message message, boolean sending) {
     if (log.isInfoEnabled()) {
-      log.info((sending?"Sending ":"Received ") + (message.isRequest() ? "Request: " : "Answer: ") + message.getCommandCode() + "\nE2E:"
-          + message.getEndToEndIdentifier() + "\nHBH:" + message.getHopByHopIdentifier() + "\nAppID:" + message.getApplicationId());
-      log.info("AVPS["+message.getAvps().size()+"]: \n");
+      log.info((sending ? "<--- Sending " : "---> Received ")
+          + (message.isRequest() ? "Request: " : "Answer: ") + message.getCommandCode() + "\nE2E:"
+          + message.getEndToEndIdentifier() + "\nHBH:" + message.getHopByHopIdentifier()
+          + "\nAppID:" + message.getApplicationId());
+      log.info("AVPS[" + message.getAvps().size() + "]: \n");
       try {
         printAvps(message.getAvps());
       } catch (AvpDataException e) {
@@ -378,11 +376,8 @@ public class ExampleClient implements EventListener<Request, Answer> {
   /**
    * Prints the AVPs present in an AvpSet with a specified 'tab' level
    *
-   * @param avpSet
-   *            the AvpSet containing the AVPs to be printed
-   * @param level
-   *            an int representing the number of 'tabs' to make a pretty
-   *            print
+   * @param avpSet the AvpSet containing the AVPs to be printed
+   * @param level an int representing the number of 'tabs' to make a pretty print
    * @throws AvpDataException
    */
   private void printAvpsAux(AvpSet avpSet, int level) throws AvpDataException {
@@ -392,7 +387,8 @@ public class ExampleClient implements EventListener<Request, Answer> {
       AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(avp.getCode(), avp.getVendorId());
 
       if (avpRep != null && avpRep.getType().equals("Grouped")) {
-        log.info(prefix + "<avp name=\"" + avpRep.getName() + "\" code=\"" + avp.getCode() + "\" vendor=\"" + avp.getVendorId() + "\">");
+        log.info(prefix + "<avp name=\"" + avpRep.getName() + "\" code=\"" + avp.getCode()
+            + "\" vendor=\"" + avp.getVendorId() + "\">");
         printAvpsAux(avp.getGrouped(), level + 1);
         log.info(prefix + "</avp>");
       } else if (avpRep != null) {
@@ -407,11 +403,11 @@ public class ExampleClient implements EventListener<Request, Answer> {
         else if (avpRep.getType().equals("Float32"))
           value = String.valueOf(avp.getFloat32());
         else
-          //value = avp.getOctetString();
+          // value = avp.getOctetString();
           value = new String(avp.getOctetString(), StandardCharsets.UTF_8);
 
-        log.info(prefix + "<avp name=\"" + avpRep.getName() + "\" code=\"" + avp.getCode() + "\" vendor=\"" + avp.getVendorId()
-            + "\" value=\"" + value + "\" />");
+        log.info(prefix + "<avp name=\"" + avpRep.getName() + "\" code=\"" + avp.getCode()
+            + "\" vendor=\"" + avp.getVendorId() + "\" value=\"" + value + "\" />");
       }
     }
   }
@@ -423,7 +419,7 @@ public class ExampleClient implements EventListener<Request, Answer> {
 
     while (!ec.finished()) {
       try {
-        Thread.currentThread().sleep(5000);
+        Thread.sleep(5000);
       } catch (InterruptedException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
